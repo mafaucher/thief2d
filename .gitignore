@@ -1,9 +1,9 @@
 Temp
 Library
 ProjectSettings
-*/*.meta
-*/*.sln
-*/*.userprefs
-*/*.csproj
-*/*.unityproj
-*/*.suo
+*.meta
+*.sln
+*.userprefs
+*.csproj
+*.unityproj
+*.suo
