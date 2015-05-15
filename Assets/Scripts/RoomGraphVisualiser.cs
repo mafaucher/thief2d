@@ -5,6 +5,8 @@ using System.Collections;
 public class RoomGraphVisualiser : MonoBehaviour
 {
 	public Color roomColor = Color.green;
+	public Color seenRoomColor = Color.cyan;
+	public Color unseenRoomColor = Color.magenta;
 	public Color openRoomLinkColor = Color.blue;
 	public Color blockedRoomLinkColor = Color.red;
 	public float roomBoxWidth = 1;
@@ -12,6 +14,7 @@ public class RoomGraphVisualiser : MonoBehaviour
 	public RoomGraphManager graphManager;
 	public static Texture2D _lineTex;
 	new public Camera camera;
+	public Collider2D playerCollider;
 	//test variables
 	public Vector2 _begin = new Vector2 (300, 100);
 	public Vector2 _end = new Vector2 (500, 100);
@@ -34,18 +37,36 @@ public class RoomGraphVisualiser : MonoBehaviour
 		//DrawLine (_end, _end + _offset, blockedRoomLinkColor, 10);
 		Room[] rooms = graphManager.GetAllRooms ();
 		Door[] doors = graphManager.GetAllDoors ();
-
 		foreach(Room room in rooms)
 		{
 			Vector2 min, max;
+			Color color = GetRoomColor(room);
 			room.GetBounds(out min, out max);
-			DrawBox(min, max, roomColor, roomBoxWidth);
+			DrawBox(min, max, color, roomBoxWidth);
 		}
 		foreach(Door door in doors)
 		{
 			Color color = door.door.bObstructsPassage ? blockedRoomLinkColor : openRoomLinkColor;
 			DrawLineInWorld(door.room_1.GetCenter(), door.room_2.GetCenter(), color, roomLinkWidth);
 		}
+	}
+	private Color GetRoomColor(Room room)
+	{
+		Room playerRoom = graphManager.GetContainingRoom (playerCollider);
+		Color result;
+		if(playerRoom==room)
+		{
+			result=roomColor;
+		}
+		else if(graphManager.CanSeeAdjacentRoom(playerRoom, room))
+		{
+			result = seenRoomColor;
+		}
+		else
+		{
+			result = unseenRoomColor;
+		}
+		return result;
 	}
 	public void DrawLineInWorld(Vector2 begin, Vector2 end, Color color, float width)
 	{
@@ -56,8 +77,9 @@ public class RoomGraphVisualiser : MonoBehaviour
 	}
 	public Vector2 WorldToScreen(Vector2 v2)
 	{
-		Vector3 v3 = new Vector3 (v2.x, -v2.y, 0);
+		Vector3 v3 = new Vector3 (v2.x, v2.y, 0);
 		Vector3 result = camera.WorldToScreenPoint (v3);
+		result.y = camera.pixelHeight - result.y;
 		return result;
 	}
 	//taken from http://wiki.unity3d.com/index.php?title=DrawLine

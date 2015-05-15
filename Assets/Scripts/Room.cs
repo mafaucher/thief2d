@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 public class Room : MonoBehaviour
 {
-	private BoxCollider2D _volume;
+	public BoxCollider2D _volume;
 	public void Awake()
 	{
 		_volume = gameObject.GetComponentInChildren<BoxCollider2D> ();
